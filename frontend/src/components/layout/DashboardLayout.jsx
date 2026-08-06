@@ -24,11 +24,10 @@ const DashboardLayout = ({ children, title, subtitle }) => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 1024
       setIsMobile(mobile)
-      // Always close sidebar on mobile when resizing
-      if (mobile) {
-        setIsSidebarOpen(false)
-      } else {
+      if (!mobile) {
         setIsSidebarOpen(true)
+      } else {
+        setIsSidebarOpen(false)
       }
     }
     checkMobile()
@@ -108,34 +107,23 @@ const DashboardLayout = ({ children, title, subtitle }) => {
   const getLabel = (item) => isArabic ? item.labelAr : item.label
 
   return (
-    <div className={`flex min-h-screen ${isDark ? 'bg-[#0a0f0d]' : 'bg-beige'}`}>
+    <div className="relative min-h-screen bg-beige dark:bg-[#0a0f0d]">
       {/* ============================================================ */}
-      {/* MOBILE OVERLAY - Only shows on mobile when sidebar is open */}
+      {/* SIDEBAR - Fixed overlay on mobile, static on desktop */}
       {/* ============================================================ */}
-      {isMobile && isSidebarOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300"
-          onClick={closeSidebar}
-          style={{ backdropFilter: 'blur(2px)' }}
-        />
-      )}
-
-      {/* ============================================================ */}
-      {/* SIDEBAR - Fixed on mobile, sticky on desktop */}
-      {/* ============================================================ */}
-      <aside 
+      <div 
         className={`
-          ${isMobile ? 'fixed' : 'lg:sticky'}
-          top-0 z-50
-          w-64 lg:w-64
-          h-screen
+          ${isMobile ? 'fixed' : 'lg:relative'}
+          inset-y-0 left-0 z-50
+          w-64
           bg-primary-dark text-beige
-          flex-shrink-0
+          h-screen
           overflow-y-auto
           transition-transform duration-300 ease-in-out
           ${isMobile ? (
             isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-          ) : 'lg:translate-x-0'}
+          ) : 'translate-x-0'}
+          lg:block
         `}
       >
         {/* Sidebar Header */}
@@ -149,7 +137,6 @@ const DashboardLayout = ({ children, title, subtitle }) => {
               <div className="text-xs text-gold/70">{isArabic ? 'نظام الإدارة' : 'Management'}</div>
             </div>
           </div>
-          {/* Close button - only on mobile */}
           {isMobile && (
             <button 
               onClick={closeSidebar} 
@@ -218,12 +205,27 @@ const DashboardLayout = ({ children, title, subtitle }) => {
             <span>{isArabic ? 'تسجيل الخروج' : 'Logout'}</span>
           </button>
         </div>
-      </aside>
+      </div>
 
       {/* ============================================================ */}
-      {/* MAIN CONTENT - Always takes full width, never moves */}
+      {/* OVERLAY - Only visible on mobile when sidebar is open */}
       {/* ============================================================ */}
-      <main className="flex-1 min-w-0 w-full">
+      {isMobile && isSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300"
+          onClick={closeSidebar}
+          style={{ backdropFilter: 'blur(2px)' }}
+        />
+      )}
+
+      {/* ============================================================ */}
+      {/* MAIN CONTENT - Always takes full width */}
+      {/* ============================================================ */}
+      <div className={`
+        ${isMobile ? 'w-full' : 'lg:ml-0'}
+        min-h-screen
+        transition-all duration-300
+      `}>
         {/* Top Bar */}
         <div className={`sticky top-0 z-30 ${isDark ? 'bg-[#0a0f0d]/90 border-white/5' : 'bg-ivory/90 border-beige'} backdrop-blur-md border-b px-4 sm:px-6 py-3 flex items-center justify-between`}>
           <div className="flex items-center gap-4">
@@ -287,7 +289,7 @@ const DashboardLayout = ({ children, title, subtitle }) => {
         <div className={`p-4 sm:p-6 ${isDark ? 'bg-[#0a0f0d]' : 'bg-beige'}`}>
           {children}
         </div>
-      </main>
+      </div>
     </div>
   )
 }
