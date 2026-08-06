@@ -1,0 +1,8 @@
+export { default as Hero } from './Hero'
+export { default as Stats } from './Stats'
+export { default as About } from './About'
+export { default as QuranJourney } from './QuranJourney'
+export { default as Dashboards } from './Dashboards'
+export { default as Features } from './Features'
+export { default as BrandIdentity } from './BrandIdentity'
+export { default as CTA } from './CTA'

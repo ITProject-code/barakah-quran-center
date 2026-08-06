@@ -1,0 +1,91 @@
+/* src/styles/globals.css */
+
+/* CSS Variables */
+:root {
+  /* Colors */
+  --primary: #0F766E;
+  --primary-dark: #163A2F;
+  --gold: #C9A227;
+  --gold-light: #E0C065;
+  --ivory: #FAFAF7;
+  --beige: #F4EFE6;
+  --text: #1C2E28;
+  --muted: #5C6E68;
+  
+  /* Spacing */
+  --container-max-width: 1280px;
+  --container-padding: 1rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Global Reset */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', 'Tajawal', sans-serif;
+  background-color: var(--ivory);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Container */
+.container-custom {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+}
+
+/* Typography */
+.heading-primary {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.heading-secondary {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--beige);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
