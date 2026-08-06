@@ -106,33 +106,53 @@ const DashboardLayout = ({ children, title, subtitle }) => {
 
   const getLabel = (item) => isArabic ? item.labelAr : item.label
 
+  // RTL support - sidebar slides from right in Arabic
+  const sidebarTranslate = isArabic ? 'translate-x-full' : '-translate-x-full'
+  const sidebarOpenTranslate = isArabic ? '-translate-x-0' : 'translate-x-0'
+
   return (
-    <div className="relative min-h-screen bg-beige dark:bg-[#0a0f0d]">
+    <div className={`relative min-h-screen ${isDark ? 'bg-[#0a0f0d]' : 'bg-beige'}`}>
+      {/* ============================================================ */}
+      {/* OVERLAY - Only visible on mobile when sidebar is open */}
+      {/* ============================================================ */}
+      {isMobile && isSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300"
+          onClick={closeSidebar}
+          style={{ backdropFilter: 'blur(2px)' }}
+        />
+      )}
+
       {/* ============================================================ */}
       {/* SIDEBAR - Fixed overlay on mobile, static on desktop */}
+      {/* Supports both LTR (English) and RTL (Arabic) */}
       {/* ============================================================ */}
       <div 
         className={`
           ${isMobile ? 'fixed' : 'lg:relative'}
-          inset-y-0 left-0 z-50
+          inset-y-0 ${isArabic ? 'right-0' : 'left-0'}
+          z-50
           w-64
           bg-primary-dark text-beige
           h-screen
           overflow-y-auto
           transition-transform duration-300 ease-in-out
           ${isMobile ? (
-            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            isSidebarOpen ? sidebarOpenTranslate : sidebarTranslate
           ) : 'translate-x-0'}
           lg:block
         `}
+        style={{
+          direction: isArabic ? 'rtl' : 'ltr'
+        }}
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-beige/10 flex items-center justify-between sticky top-0 bg-primary-dark z-10">
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse' : ''}`}>
             <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
               <FaQuran className="text-gold text-xl" />
             </div>
-            <div>
+            <div className={isArabic ? 'text-right' : 'text-left'}>
               <div className="font-arabic text-sm font-bold">بركة النسائية</div>
               <div className="text-xs text-gold/70">{isArabic ? 'نظام الإدارة' : 'Management'}</div>
             </div>
@@ -149,11 +169,11 @@ const DashboardLayout = ({ children, title, subtitle }) => {
 
         {/* User Info */}
         <div className="p-4 border-b border-beige/10">
-          <div className="flex items-center gap-3">
+          <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse' : ''}`}>
             <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center text-primary-dark font-bold text-sm">
               {user?.name?.charAt(0) || 'U'}
             </div>
-            <div className="flex-1 min-w-0">
+            <div className={`flex-1 min-w-0 ${isArabic ? 'text-right' : 'text-left'}`}>
               <div className="text-sm font-medium truncate">{user?.name}</div>
               <div className="text-xs text-beige/50 capitalize">
                 {isArabic ? (user?.role === 'admin' ? 'مدير النظام' : 'معلمة') : user?.role}
@@ -164,7 +184,7 @@ const DashboardLayout = ({ children, title, subtitle }) => {
 
         {/* Navigation */}
         <nav className="p-3 pb-4">
-          <div className="text-xs text-beige/30 uppercase tracking-wider px-3 py-2">
+          <div className={`text-xs text-beige/30 uppercase tracking-wider px-3 py-2 ${isArabic ? 'text-right' : 'text-left'}`}>
             {isArabic ? 'لوحة التحكم' : 'Navigation'}
           </div>
           
@@ -183,12 +203,12 @@ const DashboardLayout = ({ children, title, subtitle }) => {
                   active 
                     ? 'bg-primary text-white shadow-lg shadow-primary/20' 
                     : 'text-beige/70 hover:bg-beige/10 hover:text-white'
-                }`}
+                } ${isArabic ? 'flex-row-reverse justify-end' : ''}`}
               >
                 <Icon className={`w-4 h-4 ${active ? 'text-white' : ''}`} />
                 <span>{getLabel(item)}</span>
                 {active && (
-                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-gold" />
+                  <span className={`ml-auto w-1.5 h-1.5 rounded-full bg-gold ${isArabic ? 'ml-0 mr-auto' : ''}`} />
                 )}
               </button>
             )
@@ -199,7 +219,7 @@ const DashboardLayout = ({ children, title, subtitle }) => {
         <div className="mt-auto p-4 border-t border-beige/10 bg-primary-dark">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-beige/50 hover:bg-beige/10 hover:text-white transition-colors"
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-beige/50 hover:bg-beige/10 hover:text-white transition-colors ${isArabic ? 'flex-row-reverse justify-end' : ''}`}
           >
             <FaSignOutAlt className="w-4 h-4" />
             <span>{isArabic ? 'تسجيل الخروج' : 'Logout'}</span>
@@ -208,27 +228,12 @@ const DashboardLayout = ({ children, title, subtitle }) => {
       </div>
 
       {/* ============================================================ */}
-      {/* OVERLAY - Only visible on mobile when sidebar is open */}
-      {/* ============================================================ */}
-      {isMobile && isSidebarOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300"
-          onClick={closeSidebar}
-          style={{ backdropFilter: 'blur(2px)' }}
-        />
-      )}
-
-      {/* ============================================================ */}
       {/* MAIN CONTENT - Always takes full width */}
       {/* ============================================================ */}
-      <div className={`
-        ${isMobile ? 'w-full' : 'lg:ml-0'}
-        min-h-screen
-        transition-all duration-300
-      `}>
+      <div className="w-full min-h-screen transition-all duration-300">
         {/* Top Bar */}
         <div className={`sticky top-0 z-30 ${isDark ? 'bg-[#0a0f0d]/90 border-white/5' : 'bg-ivory/90 border-beige'} backdrop-blur-md border-b px-4 sm:px-6 py-3 flex items-center justify-between`}>
-          <div className="flex items-center gap-4">
+          <div className={`flex items-center gap-4 ${isArabic ? 'flex-row-reverse' : ''}`}>
             {/* Hamburger button - only visible on mobile */}
             <button
               onClick={toggleSidebar}
@@ -240,7 +245,7 @@ const DashboardLayout = ({ children, title, subtitle }) => {
               <FaBars className={`text-xl ${isDark ? 'text-white' : 'text-primary-dark'}`} />
             </button>
 
-            <div>
+            <div className={isArabic ? 'text-right' : 'text-left'}>
               <h1 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-primary-dark'}`}>{title}</h1>
               <p className={`text-xs ${isDark ? 'text-white/50' : 'text-muted'}`}>{subtitle}</p>
             </div>
@@ -248,11 +253,11 @@ const DashboardLayout = ({ children, title, subtitle }) => {
 
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="relative hidden md:block">
-              <FaSearch className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-white/30' : 'text-muted'} text-sm`} />
+              <FaSearch className={`absolute ${isArabic ? 'right-3' : 'left-3'} top-1/2 -translate-y-1/2 ${isDark ? 'text-white/30' : 'text-muted'} text-sm`} />
               <input
                 type="text"
                 placeholder={isArabic ? 'بحث سريع...' : 'Quick search...'}
-                className={`pl-9 pr-4 py-2 ${isDark ? 'bg-white/5 border-white/10 text-white placeholder-white/30' : 'bg-white border-beige text-text'} border rounded-lg text-sm focus:outline-none focus:border-primary w-32 sm:w-48`}
+                className={`pl-9 pr-4 py-2 ${isDark ? 'bg-white/5 border-white/10 text-white placeholder-white/30' : 'bg-white border-beige text-text'} border rounded-lg text-sm focus:outline-none focus:border-primary w-32 sm:w-48 ${isArabic ? 'text-right pr-9 pl-4' : ''}`}
               />
             </div>
 
