@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useLanguage } from '../../context/LanguageContext'
 import { 
@@ -15,6 +15,7 @@ const DashboardLayout = ({ children, title, subtitle }) => {
   const { user, logout } = useAuth()
   const { lang, toggleLanguage, isArabic } = useLanguage()
   const navigate = useNavigate()
+  const location = useLocation()
   const [isDark, setIsDark] = useState(false)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
@@ -33,6 +34,13 @@ const DashboardLayout = ({ children, title, subtitle }) => {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Close sidebar on route change (mobile)
+  useEffect(() => {
+    if (isMobile) {
+      setIsSidebarOpen(false)
+    }
+  }, [location.pathname, isMobile])
 
   const handleLogout = () => {
     logout()
@@ -66,7 +74,7 @@ const DashboardLayout = ({ children, title, subtitle }) => {
     { icon: FaKey, label: 'Change Password', labelAr: 'تغيير كلمة المرور', path: '/admin/change-password' },
   ]
 
-  // Teacher navigation - FIXED: Settings goes to /teacher/settings
+  // Teacher navigation
   const teacherNav = [
     { icon: FaHome, label: 'Dashboard', labelAr: 'الرئيسية', path: '/teacher/dashboard' },
     { icon: FaUserGraduate, label: 'My Students', labelAr: 'طالباتي', path: '/teacher/students' },
@@ -74,30 +82,33 @@ const DashboardLayout = ({ children, title, subtitle }) => {
     { icon: FaQuran, label: 'Memorization', labelAr: 'الحفظ', path: '/teacher/memorization' },
     { icon: FaBook, label: 'Revision', labelAr: 'المراجعة', path: '/teacher/revision' },
     { icon: FaUser, label: 'Profile', labelAr: 'الملف الشخصي', path: '/teacher/profile' },
-    { icon: FaCog, label: 'Settings', labelAr: 'الإعدادات', path: '/teacher/settings' },  // FIXED
+    { icon: FaCog, label: 'Settings', labelAr: 'الإعدادات', path: '/teacher/settings' },
     { icon: FaKey, label: 'Change Password', labelAr: 'تغيير كلمة المرور', path: '/change-password' },
   ]
 
   const currentNav = user?.role === 'admin' ? adminNav : teacherNav
 
-  const isActive = (path) => window.location.pathname === path
+  const isActive = (path) => {
+    return location.pathname === path || location.pathname.startsWith(path + '/')
+  }
 
   const getLabel = (item) => isArabic ? item.labelAr : item.label
 
   return (
     <div className={`flex min-h-screen ${isDark ? 'bg-[#0a0f0d]' : 'bg-beige'}`}>
-      {/* Mobile Overlay */}
+      {/* Mobile Overlay - FIXED: better z-index and click handling */}
       {isMobile && isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40"
+          className="fixed inset-0 bg-black/60 z-40 transition-opacity duration-300"
           onClick={closeSidebar}
+          style={{ backdropFilter: 'blur(2px)' }}
         />
       )}
 
-      {/* Sidebar */}
-      <aside className={`fixed lg:sticky top-0 z-50 w-64 bg-primary-dark text-beige flex-shrink-0 h-screen overflow-y-auto transition-transform duration-300 ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      } lg:block`}>
+      {/* Sidebar - FIXED: smoother transitions */}
+      <aside className={`fixed lg:sticky top-0 z-50 w-64 lg:w-64 bg-primary-dark text-beige flex-shrink-0 h-screen overflow-y-auto transition-all duration-300 ease-in-out ${
+        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      } lg:translate-x-0`}>
         
         {/* Sidebar Header */}
         <div className="p-4 border-b border-beige/10 flex items-center justify-between sticky top-0 bg-primary-dark z-10">
@@ -113,7 +124,7 @@ const DashboardLayout = ({ children, title, subtitle }) => {
           {isMobile && (
             <button 
               onClick={closeSidebar} 
-              className="lg:hidden text-beige/50 hover:text-white transition-colors p-1"
+              className="lg:hidden text-beige/50 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
             >
               <FaTimes className="text-xl" />
             </button>
@@ -152,12 +163,17 @@ const DashboardLayout = ({ children, title, subtitle }) => {
                   navigate(item.path)
                   closeSidebar()
                 }}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors mb-0.5 ${
-                  active ? 'bg-primary text-white' : 'text-beige/70 hover:bg-beige/10 hover:text-white'
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 mb-0.5 ${
+                  active 
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                    : 'text-beige/70 hover:bg-beige/10 hover:text-white'
                 }`}
               >
-                <Icon className="w-4 h-4" />
+                <Icon className={`w-4 h-4 ${active ? 'text-white' : ''}`} />
                 <span>{getLabel(item)}</span>
+                {active && (
+                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-gold" />
+                )}
               </button>
             )
           })}
@@ -182,7 +198,9 @@ const DashboardLayout = ({ children, title, subtitle }) => {
           <div className="flex items-center gap-4">
             <button
               onClick={toggleSidebar}
-              className="p-2 rounded-lg hover:bg-beige/30 transition-colors lg:hidden"
+              className={`p-2 rounded-lg transition-colors lg:hidden ${
+                isDark ? 'hover:bg-white/10' : 'hover:bg-beige/30'
+              }`}
               aria-label="Toggle Sidebar"
             >
               <FaBars className={`text-xl ${isDark ? 'text-white' : 'text-primary-dark'}`} />
