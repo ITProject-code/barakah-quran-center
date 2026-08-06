@@ -24,10 +24,11 @@ const DashboardLayout = ({ children, title, subtitle }) => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 1024
       setIsMobile(mobile)
-      if (!mobile) {
-        setIsSidebarOpen(true)
-      } else {
+      // Always close sidebar on mobile when resizing
+      if (mobile) {
         setIsSidebarOpen(false)
+      } else {
+        setIsSidebarOpen(true)
       }
     }
     checkMobile()
@@ -35,12 +36,24 @@ const DashboardLayout = ({ children, title, subtitle }) => {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Close sidebar on route change (mobile)
+  // Close sidebar on route change (mobile only)
   useEffect(() => {
     if (isMobile) {
       setIsSidebarOpen(false)
     }
   }, [location.pathname, isMobile])
+
+  // Prevent body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (isMobile && isSidebarOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isMobile, isSidebarOpen])
 
   const handleLogout = () => {
     logout()
@@ -96,20 +109,35 @@ const DashboardLayout = ({ children, title, subtitle }) => {
 
   return (
     <div className={`flex min-h-screen ${isDark ? 'bg-[#0a0f0d]' : 'bg-beige'}`}>
-      {/* Mobile Overlay - FIXED: better z-index and click handling */}
+      {/* ============================================================ */}
+      {/* MOBILE OVERLAY - Only shows on mobile when sidebar is open */}
+      {/* ============================================================ */}
       {isMobile && isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 z-40 transition-opacity duration-300"
+          className="fixed inset-0 z-40 bg-black/50 transition-opacity duration-300"
           onClick={closeSidebar}
           style={{ backdropFilter: 'blur(2px)' }}
         />
       )}
 
-      {/* Sidebar - FIXED: smoother transitions */}
-      <aside className={`fixed lg:sticky top-0 z-50 w-64 lg:w-64 bg-primary-dark text-beige flex-shrink-0 h-screen overflow-y-auto transition-all duration-300 ease-in-out ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0`}>
-        
+      {/* ============================================================ */}
+      {/* SIDEBAR - Fixed on mobile, sticky on desktop */}
+      {/* ============================================================ */}
+      <aside 
+        className={`
+          ${isMobile ? 'fixed' : 'lg:sticky'}
+          top-0 z-50
+          w-64 lg:w-64
+          h-screen
+          bg-primary-dark text-beige
+          flex-shrink-0
+          overflow-y-auto
+          transition-transform duration-300 ease-in-out
+          ${isMobile ? (
+            isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          ) : 'lg:translate-x-0'}
+        `}
+      >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-beige/10 flex items-center justify-between sticky top-0 bg-primary-dark z-10">
           <div className="flex items-center gap-3">
@@ -121,10 +149,11 @@ const DashboardLayout = ({ children, title, subtitle }) => {
               <div className="text-xs text-gold/70">{isArabic ? 'نظام الإدارة' : 'Management'}</div>
             </div>
           </div>
+          {/* Close button - only on mobile */}
           {isMobile && (
             <button 
               onClick={closeSidebar} 
-              className="lg:hidden text-beige/50 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+              className="text-beige/50 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
             >
               <FaTimes className="text-xl" />
             </button>
@@ -191,11 +220,14 @@ const DashboardLayout = ({ children, title, subtitle }) => {
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 min-w-0">
+      {/* ============================================================ */}
+      {/* MAIN CONTENT - Always takes full width, never moves */}
+      {/* ============================================================ */}
+      <main className="flex-1 min-w-0 w-full">
         {/* Top Bar */}
-        <div className={`sticky top-0 z-40 ${isDark ? 'bg-[#0a0f0d]/90 border-white/5' : 'bg-ivory/90 border-beige'} backdrop-blur-md border-b px-4 sm:px-6 py-3 flex items-center justify-between`}>
+        <div className={`sticky top-0 z-30 ${isDark ? 'bg-[#0a0f0d]/90 border-white/5' : 'bg-ivory/90 border-beige'} backdrop-blur-md border-b px-4 sm:px-6 py-3 flex items-center justify-between`}>
           <div className="flex items-center gap-4">
+            {/* Hamburger button - only visible on mobile */}
             <button
               onClick={toggleSidebar}
               className={`p-2 rounded-lg transition-colors lg:hidden ${
@@ -251,6 +283,7 @@ const DashboardLayout = ({ children, title, subtitle }) => {
           </div>
         </div>
 
+        {/* Page Content */}
         <div className={`p-4 sm:p-6 ${isDark ? 'bg-[#0a0f0d]' : 'bg-beige'}`}>
           {children}
         </div>
