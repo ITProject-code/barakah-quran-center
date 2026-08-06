@@ -3,12 +3,12 @@ const bcrypt = require('bcryptjs')
 const pool = require('../config/database')
 const User = require('../models/User')
 
-// Generate JWT Token
+// Generate JWT Token - FIXED
 const generateToken = (user) => {
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRE }
+    { expiresIn: '7d' }  // ✅ Fixed: '7d' is a valid string
   )
 }
 
@@ -307,7 +307,6 @@ const adminResetPassword = async (req, res) => {
   try {
     const { userId, newPassword } = req.body
     
-    // Check if requester is admin
     if (req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Access denied. Admin only.' })
     }
@@ -320,7 +319,6 @@ const adminResetPassword = async (req, res) => {
       return res.status(400).json({ message: 'Password must be at least 6 characters' })
     }
     
-    // Check if user exists and is a teacher
     const user = await User.findById(userId)
     if (!user) {
       return res.status(404).json({ message: 'User not found' })
