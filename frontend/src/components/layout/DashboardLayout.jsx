@@ -111,7 +111,7 @@ const DashboardLayout = ({ children, title, subtitle }) => {
   const sidebarOpenTranslate = isArabic ? '-translate-x-0' : 'translate-x-0'
 
   return (
-    <div className={`relative min-h-screen ${isDark ? 'bg-[#0a0f0d]' : 'bg-beige'}`}>
+    <div className={`flex min-h-screen ${isDark ? 'bg-[#0a0f0d]' : 'bg-beige'}`}>
       {/* ============================================================ */}
       {/* OVERLAY - Only visible on mobile when sidebar is open */}
       {/* ============================================================ */}
@@ -124,18 +124,18 @@ const DashboardLayout = ({ children, title, subtitle }) => {
       )}
 
       {/* ============================================================ */}
-      {/* SIDEBAR - Fixed overlay on mobile, static on desktop */}
-      {/* Supports both LTR (English) and RTL (Arabic) */}
+      {/* SIDEBAR - FIXED: Now stretches full height on desktop */}
       {/* ============================================================ */}
       <div 
         className={`
-          ${isMobile ? 'fixed' : 'lg:relative'}
+          ${isMobile ? 'fixed' : 'relative'}
           inset-y-0 ${isArabic ? 'right-0' : 'left-0'}
           z-50
           w-64
           bg-primary-dark text-beige
-          h-screen
+          min-h-screen
           overflow-y-auto
+          flex-shrink-0
           transition-transform duration-300 ease-in-out
           ${isMobile ? (
             isSidebarOpen ? sidebarOpenTranslate : sidebarTranslate
@@ -146,91 +146,94 @@ const DashboardLayout = ({ children, title, subtitle }) => {
           direction: isArabic ? 'rtl' : 'ltr'
         }}
       >
-        {/* Sidebar Header */}
-        <div className="p-4 border-b border-beige/10 flex items-center justify-between sticky top-0 bg-primary-dark z-10">
-          <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse' : ''}`}>
-            <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
-              <FaQuran className="text-gold text-xl" />
+        {/* Sidebar Inner Container - flex column to push logout to bottom */}
+        <div className="flex flex-col min-h-screen">
+          {/* Sidebar Header */}
+          <div className="p-4 border-b border-beige/10 flex items-center justify-between sticky top-0 bg-primary-dark z-10">
+            <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse' : ''}`}>
+              <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
+                <FaQuran className="text-gold text-xl" />
+              </div>
+              <div className={isArabic ? 'text-right' : 'text-left'}>
+                <div className="font-arabic text-sm font-bold">بركة النسائية</div>
+                <div className="text-xs text-gold/70">{isArabic ? 'نظام الإدارة' : 'Management'}</div>
+              </div>
             </div>
-            <div className={isArabic ? 'text-right' : 'text-left'}>
-              <div className="font-arabic text-sm font-bold">بركة النسائية</div>
-              <div className="text-xs text-gold/70">{isArabic ? 'نظام الإدارة' : 'Management'}</div>
-            </div>
+            {isMobile && (
+              <button 
+                onClick={closeSidebar} 
+                className="text-beige/50 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
+              >
+                <FaTimes className="text-xl" />
+              </button>
+            )}
           </div>
-          {isMobile && (
-            <button 
-              onClick={closeSidebar} 
-              className="text-beige/50 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10"
-            >
-              <FaTimes className="text-xl" />
-            </button>
-          )}
-        </div>
 
-        {/* User Info */}
-        <div className="p-4 border-b border-beige/10">
-          <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse' : ''}`}>
-            <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center text-primary-dark font-bold text-sm">
-              {user?.name?.charAt(0) || 'U'}
-            </div>
-            <div className={`flex-1 min-w-0 ${isArabic ? 'text-right' : 'text-left'}`}>
-              <div className="text-sm font-medium truncate">{user?.name}</div>
-              <div className="text-xs text-beige/50 capitalize">
-                {isArabic ? (user?.role === 'admin' ? 'مدير النظام' : 'معلمة') : user?.role}
+          {/* User Info */}
+          <div className="p-4 border-b border-beige/10">
+            <div className={`flex items-center gap-3 ${isArabic ? 'flex-row-reverse' : ''}`}>
+              <div className="w-10 h-10 rounded-full bg-gold flex items-center justify-center text-primary-dark font-bold text-sm">
+                {user?.name?.charAt(0) || 'U'}
+              </div>
+              <div className={`flex-1 min-w-0 ${isArabic ? 'text-right' : 'text-left'}`}>
+                <div className="text-sm font-medium truncate">{user?.name}</div>
+                <div className="text-xs text-beige/50 capitalize">
+                  {isArabic ? (user?.role === 'admin' ? 'مدير النظام' : 'معلمة') : user?.role}
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Navigation */}
-        <nav className="p-3 pb-4">
-          <div className={`text-xs text-beige/30 uppercase tracking-wider px-3 py-2 ${isArabic ? 'text-right' : 'text-left'}`}>
-            {isArabic ? 'لوحة التحكم' : 'Navigation'}
+          {/* Navigation - Fills available space */}
+          <nav className="flex-1 p-3 pb-4 overflow-y-auto">
+            <div className={`text-xs text-beige/30 uppercase tracking-wider px-3 py-2 ${isArabic ? 'text-right' : 'text-left'}`}>
+              {isArabic ? 'لوحة التحكم' : 'Navigation'}
+            </div>
+            
+            {currentNav.map((item, index) => {
+              const Icon = item.icon
+              const active = isActive(item.path)
+
+              return (
+                <button
+                  key={index}
+                  onClick={() => {
+                    navigate(item.path)
+                    closeSidebar()
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 mb-0.5 ${
+                    active 
+                      ? 'bg-primary text-white shadow-lg shadow-primary/20' 
+                      : 'text-beige/70 hover:bg-beige/10 hover:text-white'
+                  } ${isArabic ? 'flex-row-reverse justify-end' : ''}`}
+                >
+                  <Icon className={`w-4 h-4 ${active ? 'text-white' : ''}`} />
+                  <span>{getLabel(item)}</span>
+                  {active && (
+                    <span className={`ml-auto w-1.5 h-1.5 rounded-full bg-gold ${isArabic ? 'ml-0 mr-auto' : ''}`} />
+                  )}
+                </button>
+              )
+            })}
+          </nav>
+
+          {/* Logout Button - Pushed to bottom */}
+          <div className="p-4 border-t border-beige/10 bg-primary-dark flex-shrink-0">
+            <button
+              onClick={handleLogout}
+              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-beige/50 hover:bg-beige/10 hover:text-white transition-colors ${isArabic ? 'flex-row-reverse justify-end' : ''}`}
+            >
+              <FaSignOutAlt className="w-4 h-4" />
+              <span>{isArabic ? 'تسجيل الخروج' : 'Logout'}</span>
+            </button>
           </div>
-          
-          {currentNav.map((item, index) => {
-            const Icon = item.icon
-            const active = isActive(item.path)
-
-            return (
-              <button
-                key={index}
-                onClick={() => {
-                  navigate(item.path)
-                  closeSidebar()
-                }}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all duration-200 mb-0.5 ${
-                  active 
-                    ? 'bg-primary text-white shadow-lg shadow-primary/20' 
-                    : 'text-beige/70 hover:bg-beige/10 hover:text-white'
-                } ${isArabic ? 'flex-row-reverse justify-end' : ''}`}
-              >
-                <Icon className={`w-4 h-4 ${active ? 'text-white' : ''}`} />
-                <span>{getLabel(item)}</span>
-                {active && (
-                  <span className={`ml-auto w-1.5 h-1.5 rounded-full bg-gold ${isArabic ? 'ml-0 mr-auto' : ''}`} />
-                )}
-              </button>
-            )
-          })}
-        </nav>
-
-        {/* Logout Button */}
-        <div className="mt-auto p-4 border-t border-beige/10 bg-primary-dark">
-          <button
-            onClick={handleLogout}
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-beige/50 hover:bg-beige/10 hover:text-white transition-colors ${isArabic ? 'flex-row-reverse justify-end' : ''}`}
-          >
-            <FaSignOutAlt className="w-4 h-4" />
-            <span>{isArabic ? 'تسجيل الخروج' : 'Logout'}</span>
-          </button>
         </div>
       </div>
 
       {/* ============================================================ */}
       {/* MAIN CONTENT - Always takes full width */}
       {/* ============================================================ */}
-      <div className="w-full min-h-screen transition-all duration-300">
+      <div className="flex-1 min-w-0 w-full">
         {/* Top Bar */}
         <div className={`sticky top-0 z-30 ${isDark ? 'bg-[#0a0f0d]/90 border-white/5' : 'bg-ivory/90 border-beige'} backdrop-blur-md border-b px-4 sm:px-6 py-3 flex items-center justify-between`}>
           <div className={`flex items-center gap-4 ${isArabic ? 'flex-row-reverse' : ''}`}>

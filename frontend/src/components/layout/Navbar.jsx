@@ -37,7 +37,7 @@ const Navbar = () => {
     <header className="bg-white/80 backdrop-blur-md border-b border-beige sticky top-0 z-50">
       <div className="container-custom py-4 flex justify-between items-center">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
+        <Link to="/" className="flex items-center gap-3 group flex-shrink-0">
           <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
             <FaQuran className="text-2xl text-gold" />
           </div>
@@ -65,8 +65,8 @@ const Navbar = () => {
           ))}
         </div>
 
-        {/* Right Side */}
-        <div className="flex items-center gap-4">
+        {/* Right Side - FIXED z-index for Sign In button */}
+        <div className="flex items-center gap-4 relative z-10">
           <button
             onClick={toggleLanguage}
             className={`px-3 py-1.5 rounded-lg font-medium transition-colors text-sm ${
@@ -80,13 +80,13 @@ const Navbar = () => {
 
           <button
             onClick={() => navigate('/login')}
-            className="hidden sm:inline-block bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 text-sm font-medium"
+            className="hidden sm:inline-block bg-primary text-white px-6 py-2 rounded-lg hover:bg-primary-dark transition-all duration-300 hover:shadow-lg hover:shadow-primary/20 text-sm font-medium cursor-pointer relative z-20"
           >
             {isArabic ? 'دخول' : 'Sign In'}
           </button>
 
           <button
-            className="lg:hidden text-2xl text-primary hover:text-gold transition-colors"
+            className="lg:hidden text-2xl text-primary hover:text-gold transition-colors relative z-20"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
             {isMenuOpen ? <FaTimes /> : <FaBars />}
@@ -96,7 +96,7 @@ const Navbar = () => {
 
       {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="lg:hidden py-4 border-t border-beige bg-white">
+        <div className="lg:hidden py-4 border-t border-beige bg-white relative z-50">
           <div className="container-custom flex flex-col gap-3">
             {links.map((link) => (
               <Link
@@ -113,7 +113,7 @@ const Navbar = () => {
                 navigate('/login')
                 setIsMenuOpen(false)
               }}
-              className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors text-center mt-2"
+              className="bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors text-center mt-2 cursor-pointer"
             >
               {isArabic ? 'دخول' : 'Sign In'}
             </button>
