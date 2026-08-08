@@ -1,9 +1,12 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { Container, Button } from '../../ui'
 import { FaQuran, FaStar, FaBookOpen } from 'react-icons/fa'
 
 const Hero = ({ lang }) => {
+  const navigate = useNavigate()
+
   const content = {
     en: {
       badge: 'Adama, Ganda Haraa',
@@ -37,6 +40,10 @@ const Hero = ({ lang }) => {
 
   const data = lang === 'ar' ? content.ar : content.en
 
+  const handleSignIn = () => {
+    navigate('/login')
+  }
+
   return (
     <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-gradient-to-br from-primary-dark via-primary to-primary/80">
       <div className="absolute inset-0 opacity-10">
@@ -68,12 +75,22 @@ const Hero = ({ lang }) => {
             </p>
 
             <div className="flex flex-wrap gap-4 mb-12">
-              <Button variant="gold" className="text-lg px-8 py-3.5">
+              {/* Register Now Button - DISABLED / Visual only */}
+              <button
+                className="bg-gray-400/70 text-white/60 px-8 py-3.5 rounded-lg font-bold text-lg cursor-not-allowed opacity-70 relative z-10"
+                disabled
+                style={{ pointerEvents: 'none' }}
+              >
                 {data.ctaPrimary}
-              </Button>
-              <Button variant="outline" className="text-lg px-8 py-3.5">
+              </button>
+              
+              {/* Sign In Button - WORKING */}
+              <button
+                onClick={handleSignIn}
+                className="bg-gold text-primary-dark px-8 py-3.5 rounded-lg font-bold text-lg hover:bg-gold-light transition-all duration-300 hover:shadow-2xl hover:shadow-gold/30 transform hover:-translate-y-1 cursor-pointer relative z-10"
+              >
                 {data.ctaSecondary}
-              </Button>
+              </button>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
